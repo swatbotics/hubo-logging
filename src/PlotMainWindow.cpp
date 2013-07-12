@@ -702,6 +702,9 @@ PlotMainWindow::PlotMainWindow(QWidget* parent): QMainWindow(parent) {
   QAction* fileNewAction = makeAction("&New plot", QKeySequence("CTRL+N"), this);
   connect(fileNewAction, SIGNAL(activated()), this, SLOT(addPlot()));
 
+  QAction* fileQuitAction = makeAction("&Quit", QKeySequence("CTRL+Q"), this);
+  connect(fileQuitAction, SIGNAL(activated()), this, SLOT(close()));
+
   QAction* viewZoomInAction = makeAction("Zoom &In", QKeySequence("CTRL+="), this);
   connect(viewZoomInAction, SIGNAL(activated()), this, SLOT(zoomIn()));
 
@@ -719,6 +722,8 @@ PlotMainWindow::PlotMainWindow(QWidget* parent): QMainWindow(parent) {
   fileSaveSetAction->addTo(f);
   f->insertSeparator();
   fileNewAction->addTo(f);
+  f->insertSeparator();
+  fileQuitAction->addTo(f);
 
   QMenu* v = new QMenu("&View", this);
   viewZoomInAction->addTo(v);

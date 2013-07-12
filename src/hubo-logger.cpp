@@ -26,15 +26,9 @@ int main(int argc, char** argv) {
   }
 
   ach_channel_t chan_hubo_state;
-  ach_channel_t chan_hubo_ref;
 
   ach_status_t r;
 
-  r = ach_open(&chan_hubo_ref, HUBO_CHAN_REF_NAME , NULL);
-  if (r != ACH_OK) {
-    std::cerr << "error opening ref channel: " << ach_result_to_string(r) << "\n";
-    return 1;
-  }
   
   r = ach_open(&chan_hubo_state, HUBO_CHAN_STATE_NAME, NULL);
   if (r != ACH_OK) {
@@ -44,25 +38,17 @@ int main(int argc, char** argv) {
 
   LogWriter writer(argv[1], 200);
 
-  struct hubo_ref H_ref;
   struct hubo_state H_state;
 
   JointInfoArray jinfo;
   buildJointTable(jinfo);
 
-  bool extra = false;
-
   writer.add(&H_state.time, "state.time", "s");
 
   for (size_t i=0; i<jinfo.size(); ++i) {
 
-    size_t index = jinfo[i].first;
     const std::string& name = jinfo[i].second;
-    writer.add(H_ref.ref+index, "ref.ref." + name, "rad");
-
-    if (extra) {
-      writer.add(H_ref.mode+index, "ref.mode." + name, "enum");
-    }
+    const size_t index = jinfo[i].first;
 
     writer.add(&H_state.joint[index].ref, "state.joint." + name + ".ref", "rad");
     writer.add(&H_state.joint[index].pos, "state.joint." + name + ".pos", "rad");
@@ -107,6 +93,8 @@ int main(int argc, char** argv) {
 
   writer.writeHeader();
 
+  std::cout << "Opened " << argv[1] << " for output, Ctrl+C to halt logging.\n";
+
   signal(SIGINT, interruptHandler);
 
   while (!interrupted) {
@@ -121,18 +109,13 @@ int main(int argc, char** argv) {
       std::cout << "warning: ach returned " << ach_result_to_string(r) << " for state\n";
     }
 
-    r = ach_get( &chan_hubo_ref, &H_ref, sizeof(H_ref), &fs, NULL, ACH_O_LAST );
-    if (useable(r)) { 
-      write = true;
-    } else {
-      std::cout << "warning: ach returned " << ach_result_to_string(r) << " for ref\n";
-    }
-
     if (write) {
       writer.writeSample();
     }
 
   }
+
+  std::cout << "Successfully wrote " << argv[1] << "\n";
 
   return 0;
 
@@ -165,7 +148,6 @@ void buildJointTable(JointInfoArray& joints) {
   ADD_JOINT(RSP);
   ADD_JOINT(RSR);
   ADD_JOINT(RSY);
-  ADD_JOINT(RSP);
   ADD_JOINT(REB);
   ADD_JOINT(RWY);
   ADD_JOINT(RWR);
@@ -174,7 +156,6 @@ void buildJointTable(JointInfoArray& joints) {
   ADD_JOINT(LSP);
   ADD_JOINT(LSR);
   ADD_JOINT(LSY);
-  ADD_JOINT(LSP);
   ADD_JOINT(LEB);
   ADD_JOINT(LWY);
   ADD_JOINT(LWR);
