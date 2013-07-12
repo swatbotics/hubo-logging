@@ -1,5 +1,6 @@
 #include "LogWriter.h"
 #include <stdexcept>
+#include <algorithm>
 
 LogWriter::LogWriter(): 
   _state(Closed),
@@ -56,8 +57,7 @@ void LogWriter::open(FILE* fp, float frequency) {
 
   _state = Opened;
   _file = fp;
-
-  fprintf(fp, "%-10d %-10d %-10d %f\n", 0, 0, 0, frequency);
+  _frequency = frequency;
 
 }
 
@@ -104,6 +104,12 @@ void LogWriter::addWrapper(FloatWrapper* wrapper,
     throw std::runtime_error("cannot add channels while writer is writing!");
   }
 
+  for (size_t i=0; i<_channels.size(); ++i) {
+    if (_channels[i].name == name) {
+      throw std::runtime_error("duplicate channel name" + name);
+    }
+  }
+
   ChannelInfo info;
   info.name = name;
   info.units = units;
@@ -122,6 +128,9 @@ void LogWriter::writeHeader() {
   if (_channels.empty()) {
     throw std::runtime_error("cannot write header for 0 channels\n");
   }    
+
+  fprintf(_file, "%-10d %-10d %-10d %f\n", 0, int(_channels.size()), 0, _frequency);
+
 
   for (size_t i=0; i<_channels.size(); ++i) {
     fprintf(_file, "%s %s\n", _channels[i].name.c_str(), _channels[i].units.c_str());
@@ -157,5 +166,20 @@ void LogWriter::writeSample() {
   }
 
   ++_nsamples;
+
+}
+
+bool LogWriter::ChannelInfo::operator<(const LogWriter::ChannelInfo& b) const {
+  return this->name < b.name;
+}
+
+void LogWriter::sortChannels() {
+
+  if (_state == Writing) {
+    throw std::runtime_error("cannot sort channels while writer is writing!");
+  }
+  
+  std::sort(_channels.begin(), _channels.end());
+  
 
 }

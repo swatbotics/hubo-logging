@@ -22,6 +22,7 @@ public:
   
   const std::string& channelName(size_t i) const;
   const std::string& channelUnits(size_t i) const;
+  const float* channelData(size_t i) const;
 
   size_t lookupChannel(const std::string& name) const;
 

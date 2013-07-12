@@ -66,6 +66,8 @@ public:
 
   }
 
+  void sortChannels();
+
   void writeHeader();
   void writeSample();
   
@@ -82,6 +84,7 @@ private:
     std::string name;
     std::string units;
     FloatWrapper* wrapper;
+    bool operator<(const ChannelInfo& b) const;
   };
   
   typedef std::vector<ChannelInfo> ChannelInfoArray;
@@ -89,6 +92,7 @@ private:
   State _state;
   
   FILE* _file;
+  float _frequency;
 
   ChannelInfoArray _channels;
   size_t _nsamples;

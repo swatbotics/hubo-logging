@@ -1,6 +1,7 @@
 #include <hubo.h>
 #include <assert.h>
 #include <iostream>
+#include <sstream>
 #include "LogWriter.h"
 #include <map>
 #include <signal.h>
@@ -73,6 +74,38 @@ int main(int argc, char** argv) {
     writer.add(&H_state.joint[index].zeroed, "state.joint." + name + ".zeroed");
 
   }
+
+  for (int i=0; i<4; ++i) {
+
+    std::ostringstream ostr;
+    ostr << "state.imu" << i;
+    std::string imustr = ostr.str();
+
+    writer.add(&H_state.imu[i].a_x, imustr+".a_x");
+    writer.add(&H_state.imu[i].a_y, imustr+".a_y");
+    writer.add(&H_state.imu[i].a_z, imustr+".a_z");
+
+    writer.add(&H_state.imu[i].w_x, imustr+".w_x");
+    writer.add(&H_state.imu[i].w_y, imustr+".w_y");
+    writer.add(&H_state.imu[i].w_z, imustr+".w_z");
+
+  }
+
+  for (int i=0; i<4; ++i) {
+
+    std::ostringstream ostr;
+    ostr << "state.ft" << i;
+    std::string ftstr = ostr.str();
+
+    writer.add(&H_state.ft[i].m_x, ftstr+".m_x");
+    writer.add(&H_state.ft[i].m_y, ftstr+".m_y");
+    writer.add(&H_state.ft[i].f_z, ftstr+".f_z");
+
+  }
+
+  writer.sortChannels();
+
+  writer.writeHeader();
 
   signal(SIGINT, interruptHandler);
 

@@ -1,6 +1,8 @@
 #include "LogReader.h"
 #include <stdio.h>
 #include <stdexcept>
+#include <assert.h>
+#include <iostream>
 
 LogReader::LogReader(): 
   _frequency(0), _numTicks(0) {}
@@ -37,6 +39,8 @@ void LogReader::open(const std::string& filename) {
     throw std::runtime_error("failed sanity check n_channels * n_points");
   }
 
+  bool incomplete = (total_n_numbers == 0);
+
   _numTicks = n_points;
 
   char name[1024], unit[1024];
@@ -50,19 +54,54 @@ void LogReader::open(const std::string& filename) {
   }
 
   fscanf(fp, "%c%c%c", name, name, name);
+  
+  std::vector<char> rowbuffer;
+  std::vector<float> rowmajor;
 
-  for (int i=0; i<total_n_numbers; ++i) {
-    float f;
-    char* c = (char*)&f;
-    for (int j=0; j<4; ++j) {
-      if (fread(c+3-j, 1, 1, fp) != 1) {
+  rowbuffer.resize( 4 * n_channels );
+  
+  int n_rows_read = 0;
+
+  while (1) {
+    size_t nread = fread(&(rowbuffer[0]), rowbuffer.size(), 1, fp);
+    if (nread == 0) {
+      if (incomplete || n_rows_read == n_points) {
+	break;
+      } else {
 	throw std::runtime_error("error reading float data");
       }
     }
-    _data.push_back(f);
+    ++n_rows_read;
+    const char* src = &(rowbuffer[0]);
+    for (int i=0; i<n_channels; ++i) {
+      float f;
+      char* c = (char*)&f;
+      for (int j=0; j<4; ++j) {
+	c[3-j] = *src++;
+      }
+      rowmajor.push_back(f);
+    }
   }
+
+  if (incomplete) { 
+    _numTicks = n_points = n_rows_read;
+    total_n_numbers = n_rows_read * n_channels;
+    std::cerr << "warning: log file was incomplete, found " << _numTicks << " samples.\n";
+  }
+
+  assert( int(rowmajor.size()) == total_n_numbers );
   
   fclose(fp);
+
+  // now transpose data
+  _data.resize(total_n_numbers);
+
+  for (int i=0; i<n_channels; ++i) {
+    for (int j=0; j<n_points; ++j) {
+      _data[i * n_points + j] = rowmajor[j * n_channels + i];
+    }
+  }
+
 
 }
 
@@ -94,6 +133,9 @@ size_t LogReader::lookupChannel(const std::string& name) const {
 }
 
 float LogReader::operator()(size_t channel, size_t tick) const {
-  return _data[tick * _names.size() + channel];
+  return _data[channel * _numTicks + tick];
 }
 
+const float* LogReader::channelData(size_t i) const {
+  return &(_data[i * _numTicks]);
+}
