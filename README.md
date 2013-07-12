@@ -13,6 +13,8 @@ Building
 
 To build the software, you will need these libraries:
 
+  - ach
+  - hubo-ach
   - Qt4
   - Qwt5
 
