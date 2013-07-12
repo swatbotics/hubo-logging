@@ -15,8 +15,8 @@ To build the software, you will need these libraries:
 
   - ach
   - hubo-ach
-  - Qt4
-  - Qwt5
+  - Qt4 (Ubuntu: `libqt4-dev`)
+  - Qwt5 (Ubuntu: `libqwt5-qt4-dev`)
 
 You must also install cmake to build as well. To build:
 
@@ -37,7 +37,7 @@ destination filename on the command line:
 
 To stop logging, simply interrupt the program with Ctrl+C.
 
-To plot log data, use the plot program:
+To plot log data, use the `plot` program:
 
     plot LOGFILENAME.data
 
