@@ -6,7 +6,7 @@ Logging and plotting routines for Hubo.
 Please contact Matt Zucker <mzucker1@swarthmore.edu> with questions,
 comments, or rants.
 
-Based on MRDPLOT code obtained from Chris Atkeson @ CMU
+Log format based on MRDPLOT code obtained from Chris Atkeson @ CMU
 
 Building 
 ========
