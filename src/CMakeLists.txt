@@ -19,12 +19,18 @@ target_link_libraries(test_cppread mrdplot)
 add_executable(test_incomplete test_incomplete.cpp)
 target_link_libraries(test_incomplete mrdplot)
 
+install(TARGETS mrdplot DESTINATION lib)
+install(FILES LogReader.h LogWriter.h mrdplot.h DESTINATION include)
+
 if (HAVE_HUBO_ACH)
   add_executable(hubo-logger hubo-logger.cpp)
   target_link_libraries(hubo-logger mrdplot huboparams ach)
+  install(TARGETS hubo-logger DESTINATION bin)
 endif (HAVE_HUBO_ACH)
 
 if (QWT_FOUND)
-  add_executable(plot plot.cpp PlotMainWindow.cpp ${plot_headers})
-  target_link_libraries(plot mrdplot ${QWT_LIBRARIES} ${QT_LIBRARIES})
+  add_executable(mzplot plot.cpp PlotMainWindow.cpp ${plot_headers})
+  target_link_libraries(mzplot mrdplot ${QWT_LIBRARIES} ${QT_LIBRARIES})
+  install(TARGETS mzplot DESTINATION bin)
 endif(QWT_FOUND)
+

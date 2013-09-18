@@ -37,9 +37,9 @@ destination filename on the command line:
 
 To stop logging, simply interrupt the program with Ctrl+C.
 
-To plot log data, use the plot program:
+To plot log data, use the mzplot program:
 
-    plot LOGFILENAME.data
+    mzplot LOGFILENAME.data
 
 To search for a variable name, use the search box in the top right.
 To add a variable to a plot, click the variable name in the list view
