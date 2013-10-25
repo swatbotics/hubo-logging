@@ -791,6 +791,7 @@ void PlotMainWindow::removeData(MzPlot* p, MzPlotData* d) {
 
 
 void PlotMainWindow::setMarker(double t, bool broadcast) {
+  statusBar()->message(QString("Marker set to %1").arg(t, 0, 'f', 5));
   setRange(_startTime, _endTime, t);
 }
 
